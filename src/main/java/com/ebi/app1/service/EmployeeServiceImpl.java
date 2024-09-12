@@ -1,7 +1,8 @@
 package com.ebi.app1.service;
 
 import com.ebi.app1.model.EmployeeDto;
-import com.ebi.app1.model.entity.EmployeeEntity;
+import com.ebi.app1.entity.EmployeeEntity;
+import com.ebi.app1.model.EmployeeSaveDto;
 import com.ebi.app1.repo.EmployeeRepo;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -20,7 +22,7 @@ public class EmployeeServiceImpl implements EmployeeServiceInt{
 
     @Override
     public List<EmployeeDto> getAllEmployees() {
-        List<EmployeeEntity> employeeEntities = employeeRepo.getAllEmployees();
+        List<EmployeeEntity> employeeEntities = employeeRepo.findAll();
         List<EmployeeDto> employeeDto = new ArrayList<>();
 
         employeeDto= employeeEntities.stream().map(employeeEntity -> modelMapper.map(employeeEntity, EmployeeDto.class)).collect(Collectors.toList());
@@ -30,46 +32,56 @@ public class EmployeeServiceImpl implements EmployeeServiceInt{
 
     @Override
     public EmployeeDto getEmployeeById(Long id) {
-        EmployeeEntity employeeEntity = employeeRepo.getEmployeeById(id);
-        EmployeeDto employeeDto = modelMapper.map(employeeEntity, EmployeeDto.class);
+        Optional<EmployeeEntity> employeeEntity = employeeRepo.findById(id);
 
-        return employeeDto;
+        return employeeEntity.map(entity -> modelMapper.map(entity, EmployeeDto.class)).orElse(null);
     }
 
     @Override
     public EmployeeDto saveEmployee(EmployeeDto employeeDto) {
         EmployeeEntity employeeEntity = modelMapper.map(employeeDto, EmployeeEntity.class);
-        employeeRepo.saveEmployee(employeeEntity);
+        employeeRepo.save(employeeEntity);
         return employeeDto;
     }
 
     @Override
-    public EmployeeDto updateEmployee(EmployeeDto employeeDto, Long id) {
-        EmployeeEntity employeeEntity = modelMapper.map(employeeDto, EmployeeEntity.class);
-        employeeEntity.setId(id);
-        EmployeeEntity employee = employeeRepo.updateEmployee(employeeEntity, id);
+    public EmployeeSaveDto updateEmployee(EmployeeSaveDto employeeSaveDto) {
 
-        return modelMapper.map(employee, EmployeeDto.class);
+        EmployeeEntity employeeEntity = modelMapper.map(employeeSaveDto, EmployeeEntity.class);
+
+        EmployeeEntity employee = employeeRepo.save(employeeEntity);
+
+        return modelMapper.map(employee, EmployeeSaveDto.class);
     }
 
     @Override
-    public EmployeeDto updatePatchEmployee(EmployeeDto employeeDto, Long id) {
-        EmployeeEntity employeeEntity = modelMapper.map(this.getEmployeeById(id), EmployeeEntity.class);
-        if(employeeDto != null) {
-            if(employeeDto.getName() != null) {
-                employeeEntity.setName(employeeDto.getName());
+    public EmployeeSaveDto updatePatchEmployee(EmployeeSaveDto employeeSaveDto) {
+
+        EmployeeEntity savedEmployeeEntity = null;
+
+        if(employeeSaveDto != null) {
+            Optional<EmployeeEntity> employeeEntityOptional = employeeRepo.findById(employeeSaveDto.getId());
+            if(employeeSaveDto.getFirst_name() != null) {
+                employeeEntityOptional.get().setFirst_name(employeeSaveDto.getFirst_name());
             }
-            if (employeeDto.getSalary() != null) {
-                employeeEntity.setSalary(employeeDto.getSalary());
+            if(employeeSaveDto.getSecond_name() != null) {
+                employeeEntityOptional.get().setSecond_name(employeeSaveDto.getSecond_name());
             }
-            // TODO save in database
+            if (employeeSaveDto.getSalary() != null) {
+                employeeEntityOptional.get().setSalary(employeeSaveDto.getSalary());
+            }
+            savedEmployeeEntity = employeeRepo.save(employeeEntityOptional.get()) ;
+
         }
-        return employeeDto;
+
+        return modelMapper.map(savedEmployeeEntity, EmployeeSaveDto.class);
     }
 
     @Override
-    public boolean deleteEmployee(Long id) {
-        return true;
+    public void deleteEmployee(Long id) {
+        employeeRepo.deleteById(id);
+
+
     }
 }
 

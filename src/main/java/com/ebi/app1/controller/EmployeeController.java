@@ -1,10 +1,9 @@
 package com.ebi.app1.controller;
 
 import com.ebi.app1.model.EmployeeDto;
-import com.ebi.app1.model.entity.EmployeeEntity;
+import com.ebi.app1.model.EmployeeSaveDto;
 import com.ebi.app1.service.EmployeeServiceInt;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,9 +27,9 @@ public class EmployeeController {
         return employeeServiceInt.saveEmployee(employeeDto);
     }
 
-    @PutMapping("/{id}")
-    public EmployeeDto updateEmployee(@RequestBody EmployeeDto employeeDto, @PathVariable Long id){
-        return employeeServiceInt.updateEmployee(employeeDto, id);
+    @PutMapping
+    public EmployeeSaveDto updateEmployee(@RequestBody EmployeeSaveDto employeeSaveDto){
+        return employeeServiceInt.updateEmployee(employeeSaveDto);
 
     }
     @GetMapping("/{id}")
@@ -39,16 +38,16 @@ public class EmployeeController {
 
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping
 
-    public EmployeeDto updatePatchEmployee(@RequestBody EmployeeDto employeeDto,@PathVariable Long id) {
+    public EmployeeSaveDto updatePatchEmployee(@RequestBody EmployeeSaveDto employeeSaveDto) {
 
-        return employeeServiceInt.updatePatchEmployee(employeeDto, id);
+        return employeeServiceInt.updatePatchEmployee(employeeSaveDto);
     }
 
     @DeleteMapping("/{id}")
-    public boolean deleteEmployee(@PathVariable Long id) {
-        return employeeServiceInt.deleteEmployee(id);
+    public void deleteEmployee(@PathVariable Long id) {
+        employeeServiceInt.deleteEmployee(id);
     }
 }
 
