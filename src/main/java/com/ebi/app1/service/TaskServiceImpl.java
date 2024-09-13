@@ -44,7 +44,6 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskSaveDto updatePatchTask(TaskSaveDto taskSaveDto) {
 
-
         if(taskSaveDto != null || taskSaveDto.getId() == null) {
             throw new CustomException("400", "Bad Request", "Task ID is required for patch update");
         }
