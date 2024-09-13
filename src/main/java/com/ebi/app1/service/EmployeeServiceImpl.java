@@ -1,5 +1,6 @@
 package com.ebi.app1.service;
 
+import com.ebi.app1.exceprions.CustomException;
 import com.ebi.app1.model.EmployeeDto;
 import com.ebi.app1.entity.EmployeeEntity;
 import com.ebi.app1.model.EmployeeSaveDto;
@@ -23,6 +24,9 @@ public class EmployeeServiceImpl implements EmployeeServiceInt{
     @Override
     public List<EmployeeDto> getAllEmployees() {
         List<EmployeeEntity> employeeEntities = employeeRepo.findAll();
+        if(employeeEntities.isEmpty()){
+            throw new CustomException("400","Not Fount","No employees found");
+        }
         List<EmployeeDto> employeeDto = new ArrayList<>();
 
         employeeDto= employeeEntities.stream().map(employeeEntity -> modelMapper.map(employeeEntity, EmployeeDto.class)).collect(Collectors.toList());
@@ -33,6 +37,10 @@ public class EmployeeServiceImpl implements EmployeeServiceInt{
     @Override
     public EmployeeDto getEmployeeById(Long id) {
         Optional<EmployeeEntity> employeeEntity = employeeRepo.findById(id);
+        if(employeeEntity.isEmpty()){
+            throw new CustomException("400","Not Fount","No employees found");
+
+        }
 
         return employeeEntity.map(entity -> modelMapper.map(entity, EmployeeDto.class)).orElse(null);
     }
@@ -40,6 +48,15 @@ public class EmployeeServiceImpl implements EmployeeServiceInt{
     @Override
     public EmployeeDto saveEmployee(EmployeeDto employeeDto) {
         EmployeeEntity employeeEntity = modelMapper.map(employeeDto, EmployeeEntity.class);
+        if(employeeEntity.getFirst_name() == null){
+            throw new CustomException("400","Not found exception","The first name is required");
+        }
+        if (employeeEntity.getSecond_name() == null){
+            throw new CustomException("400","Not found exception","The second name is required");
+        }
+        if(employeeEntity.getSalary() == null){
+            throw new CustomException("400","Not found exception","The salary is required");
+        }
         employeeRepo.save(employeeEntity);
         return employeeDto;
     }
@@ -48,6 +65,9 @@ public class EmployeeServiceImpl implements EmployeeServiceInt{
     public EmployeeSaveDto updateEmployee(EmployeeSaveDto employeeSaveDto) {
 
         EmployeeEntity employeeEntity = modelMapper.map(employeeSaveDto, EmployeeEntity.class);
+        if(employeeEntity.getFirst_name() == null){
+
+        }
 
         EmployeeEntity employee = employeeRepo.save(employeeEntity);
 
