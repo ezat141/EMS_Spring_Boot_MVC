@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Page</title>
+</head>
+<body>
+<table class="table table-striped table-responsive-md">
+    <thead>
+    <tr>
+        <th>First Name</th>
+        <th>Second Name</th>
+        <th>Salary</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="employee : ${response.getData()}">
+        <td th:text="${employee.first_name}"></td>
+        <td th:text="${employee.second_name}"></td>
+        <td th:text="${employee.salary}"></td>
+
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
