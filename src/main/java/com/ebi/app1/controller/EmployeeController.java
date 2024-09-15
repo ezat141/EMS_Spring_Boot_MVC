@@ -1,6 +1,5 @@
 package com.ebi.app1.controller;
 
-import com.ebi.app1.exceprions.CustomException;
 import com.ebi.app1.model.EmployeeDto;
 import com.ebi.app1.model.EmployeeSaveDto;
 import com.ebi.app1.model.GeneralResponse;
@@ -81,14 +80,15 @@ public class EmployeeController {
 
          return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    @GetMapping("/view")
+    @GetMapping("/home")
     public String getAllEmployeesView(Model model){
         List<EmployeeDto> employees = employeeServiceInt.getAllEmployees();
         GeneralResponse <List<EmployeeDto>> response = new GeneralResponse<>(successCode, successMessage, employees);
         model.addAttribute("response", response);
-        return "employee";
+        model.addAttribute("employee", new EmployeeDto());
+        model.addAttribute("employeesavedto", new EmployeeSaveDto());
+        return "index1";
     }
-
     @GetMapping("/register")
     public String getEmployeeRegisterView(Model model){
         model.addAttribute("employee", new EmployeeDto());
@@ -99,15 +99,75 @@ public class EmployeeController {
     public String registerEmployee(EmployeeDto employeeDto, Model model){
         EmployeeDto employeeDtoSaved = employeeServiceInt.saveEmployee(employeeDto);
         model.addAttribute("employee", new EmployeeDto());
-        return "redirect:view";
+        return "redirect:/employee/home";
+
+    }
+    @PostMapping("/update")
+    public String updateEmployee( EmployeeSaveDto employeeSaveDto, Model model) {
+        EmployeeSaveDto employeeSaveDto1 = employeeServiceInt.updateEmployee(employeeSaveDto);
+        GeneralResponse <EmployeeSaveDto> response = new GeneralResponse<>(successCode, successMessage, employeeSaveDto1);
+        model.addAttribute("employeesavedto", new EmployeeSaveDto());
+
+        return "redirect:/employee/home";
+    }
+
+    @PostMapping("/patch")
+    public String updatePatchEmployeeView( EmployeeSaveDto employeeSaveDto, Model model) {
+        EmployeeSaveDto employeeSaveDto1 = employeeServiceInt.updatePatchEmployee(employeeSaveDto);
+//        GeneralResponse<EmployeeSaveDto> response = new GeneralResponse<>(successCode, successMessage, employeeSaveDto1);
+        model.addAttribute("employeesavedto", new EmployeeSaveDto());
+
+        return "redirect:/employee/home";
+    }
+
+    @PostMapping("/search")
+    public String getEmployeeById( EmployeeSaveDto employeeSaveDto , Model model) {
+        EmployeeDto employeeDto = employeeServiceInt.getEmployeeById(employeeSaveDto.getId());
+        GeneralResponse <EmployeeDto> response = new GeneralResponse<>(successCode, successMessage, employeeDto);
+        model.addAttribute("employeesavedto", response);
+
+        return "showAll";
 
     }
 
-    @ExceptionHandler(value = CustomException.class)
-    String notFoundElement(CustomException customException, Model model){
-        model.addAttribute("error", customException.getMessage());
-        return "error";
+
+
+    @PostMapping("/delete")
+    String deleteEmployee( EmployeeSaveDto employeeSaveDto , Model model)
+    {
+        model.addAttribute("employeesavedto", new EmployeeSaveDto());
+        employeeServiceInt.deleteEmployee(employeeSaveDto.getId());
+
+        return  "redirect:/employee/home";
     }
+
+
+
+
+    @GetMapping("/update/{id}")
+    public String getUpdateEmployeeView(@PathVariable Long id, Model model) {
+        EmployeeDto employeeDto = employeeServiceInt.getEmployeeById(id); // Fetching the employee to pre-populate the form
+        model.addAttribute("employeeSaveDto", employeeDto); // Passing employee data to the view
+        return "redirect:/";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String getDeleteEmployeeView(@PathVariable Long id, Model model) {
+        model.addAttribute("employeeId", id); // Passing the employee ID to the view
+        return "redirect:/"; // This will render the 'deleteEmployee.html' view
+    }
+
+    @GetMapping("/delete-all")
+    public String getDeleteAllEmployeesView(Model model) {
+        return "redirect:/"; // This will render the 'deleteAllEmployees.html' view
+    }
+
+
+
+
+
+
+
 
 }
 

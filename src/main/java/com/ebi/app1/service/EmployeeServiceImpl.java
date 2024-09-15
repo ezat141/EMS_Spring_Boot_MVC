@@ -87,19 +87,19 @@ public class EmployeeServiceImpl implements EmployeeServiceInt{
 
         EmployeeEntity savedEmployeeEntity = null;
 
-        if(employeeSaveDto != null || employeeSaveDto.getId() == null){
+        if(employeeSaveDto == null && employeeSaveDto.getId() == null){
             throw new CustomException("400", "Bad Request", "The id is required for patch update.");
 
         }
             EmployeeEntity employeeEntity = employeeRepo.findById(employeeSaveDto.getId())
                     .orElseThrow(() -> new CustomException("404", "Employee Not Found", "Cannot patch non-existing employee with id: " + employeeSaveDto.getId()));
-            if(employeeSaveDto.getFirst_name() != null) {
+            if(employeeSaveDto.getFirst_name() != null && !employeeSaveDto.getFirst_name().isEmpty()) {
                 employeeEntity.setFirst_name(employeeSaveDto.getFirst_name());
             }
-            if(employeeSaveDto.getSecond_name() != null) {
+            if(employeeSaveDto.getSecond_name() != null && !employeeSaveDto.getSecond_name().isEmpty()) {
                 employeeEntity.setSecond_name(employeeSaveDto.getSecond_name());
             }
-            if (employeeSaveDto.getSalary() != null) {
+            if (employeeSaveDto.getSalary() != null && !employeeSaveDto.getSalary().isEmpty()) {
                 employeeEntity.setSalary(employeeSaveDto.getSalary());
             }
             savedEmployeeEntity = employeeRepo.save(employeeEntity) ;
